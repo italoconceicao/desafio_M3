@@ -57,9 +57,10 @@ const atualizarCategoria = async (req, res) => {
     const { id } = req.params
 
     if (!descricao) { return res.status(404).json({ mensagem: 'Categoria não informada.' }); }
+    if (!id) { return res.status(404).json({ mensagem: 'ID não informado.' }); }
 
-    const quantidadeDeCategorias = await pool.query(`SELECT * FROM categorias`);
-    if (id > quantidadeDeCategorias.rowCount || id < 1) { return res.status(404).json({ mensagem: 'Id informado é inexistente ou não pertence a este usuário.' }); }
+    const categorias = await pool.query(`SELECT * FROM categorias`);
+    if (id > categorias.rowCount || id < 1) { return res.status(404).json({ mensagem: 'Categoria não encontrada.' }); }
 
     const categoriaInformada = await pool.query(`SELECT * FROM categorias WHERE id = $1`, [id]);
     if (categoriaInformada.rows[0].usuario_id != req.usuario.id) { return res.status(404).json({ mensagem: 'Id informado é inexistente ou não pertence a este usuário.' }); }
@@ -74,12 +75,24 @@ const atualizarCategoria = async (req, res) => {
 }
 
 const deletarCategoria = async (req, res) => {
+    const { id } = req.params;
 
+    if (!id) { return res.status(404).json({ mensagem: 'ID não informado.' }); }
 
+    const categorias = await pool.query(`SELECT * FROM categorias`);
+    if (id > categorias.rowCount || id < 1) { return res.status(404).json({ mensagem: 'Categoria não encontrada.' }); }
 
+    try {
+        if (categorias.rows.length < 1) {
+            const query = await pool.query(`DELETE FROM categorias WHERE id = $1`, [id])
+            return res.status(204).send()
+        } else {
+            { return res.status(403).json({ mensagem: 'Categoria não pode ser excluída.' }); }
+        }
 
-
-
+    } catch (error) {
+        return res.status(500).json({ mensagem: 'Erro interno do servidor' });
+    }
 }
 
 
