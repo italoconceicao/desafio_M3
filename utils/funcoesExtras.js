@@ -15,4 +15,4 @@ const buscarUsuarioPorEmail = async (bancoDaddos, email) => {
     }
 };
 
-module.exports = { buscarUsuarioPorEmail }
+module.exports = { buscarUsuarioPorEmail }//
